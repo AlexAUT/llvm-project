@@ -264,6 +264,10 @@ private:
                                 SDValue &SrcMods) const;
   bool SelectVOP3PMadMixBF16ModsNeg(SDValue In, SDValue &Src,
                                     SDValue &SrcMods) const;
+  bool SelectVOP3PMadMixModsExtNeg(SDValue In, SDValue &Src,
+                                   SDValue &SrcMods) const;
+  bool SelectVOP3PMadMixBF16ModsExtNeg(SDValue In, SDValue &Src,
+                                       SDValue &SrcMods) const;
 
   bool SelectBITOP3(SDValue In, SDValue &Src0, SDValue &Src1, SDValue &Src2,
                    SDValue &Tbl) const;

@@ -1714,6 +1714,8 @@ def VOP3PMadMixBF16ModsExt : ComplexPattern<untyped, 2, "SelectVOP3PMadMixBF16Mo
 def VOP3PMadMixBF16Mods : ComplexPattern<untyped, 2, "SelectVOP3PMadMixBF16Mods">;
 def VOP3PMadMixModsNeg : ComplexPattern<untyped, 2, "SelectVOP3PMadMixModsNeg">;
 def VOP3PMadMixBF16ModsNeg : ComplexPattern<untyped, 2, "SelectVOP3PMadMixBF16ModsNeg">;
+def VOP3PMadMixModsExtNeg : ComplexPattern<untyped, 2, "SelectVOP3PMadMixModsExtNeg">;
+def VOP3PMadMixBF16ModsExtNeg : ComplexPattern<untyped, 2, "SelectVOP3PMadMixBF16ModsExtNeg">;
 
 def VINTERPMods  : ComplexPattern<untyped, 2, "SelectVINTERPMods">;
 def VINTERPModsHi  : ComplexPattern<untyped, 2, "SelectVINTERPModsHi">;

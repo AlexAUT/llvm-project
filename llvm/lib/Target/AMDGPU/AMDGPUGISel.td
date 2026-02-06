@@ -209,6 +209,10 @@ def gi_vop3_mad_mix_mods_neg :
     GIComplexOperandMatcher<s64, "selectVOP3PMadMixModsNeg">,
     GIComplexPatternEquiv<VOP3PMadMixModsNeg>;
 
+def gi_vop3_mad_mix_mods_ext_neg :
+    GIComplexOperandMatcher<s64, "selectVOP3PMadMixModsExtNeg">,
+    GIComplexPatternEquiv<VOP3PMadMixModsExtNeg>;
+
 // Separate load nodes are defined to glue m0 initialization in
 // SelectionDAG. The GISel selector can just insert m0 initialization
 // directly before selecting a glue-less load, so hide this
