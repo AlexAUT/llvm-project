@@ -4780,9 +4780,11 @@ bool AMDGPUAsmParser::validateFlatOffset(const MCInst &Inst,
   // For pre-GFX12 FLAT instructions the offset must be positive;
   // MSB is ignored and forced to zero.
   unsigned OffsetSize = AMDGPU::getNumFlatOffsetBits(getSTI());
+  // DEBUG WAR:
   bool AllowNegative =
-      (TSFlags & (SIInstrFlags::FlatGlobal | SIInstrFlags::FlatScratch)) ||
-      isGFX12Plus();
+      !isGFX1250() &&
+      ((TSFlags & (SIInstrFlags::FlatGlobal | SIInstrFlags::FlatScratch)) ||
+       isGFX12Plus());
   if (!isIntN(OffsetSize, Op.getImm()) || (!AllowNegative && Op.getImm() < 0)) {
     Error(getFlatOffsetLoc(Operands),
           Twine("expected a ") +
