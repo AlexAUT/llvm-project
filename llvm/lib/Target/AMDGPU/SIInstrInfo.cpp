@@ -10310,6 +10310,10 @@ SIInstrInfo::splitFlatOffset(int64_t COffsetVal, unsigned AddrSpace,
 }
 
 bool SIInstrInfo::allowNegativeFlatOffset(uint64_t FlatVariant) const {
+  // Debug WAR:
+  if (ST.hasGFX1250Insts())
+    return false;
+
   if (ST.hasNegativeScratchOffsetBug() &&
       FlatVariant == SIInstrFlags::FlatScratch)
     return false;
