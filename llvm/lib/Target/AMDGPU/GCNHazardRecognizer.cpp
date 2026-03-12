@@ -21,6 +21,7 @@
 #include "llvm/CodeGen/ScheduleDAG.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/TargetParser/TargetParser.h"
+#include <atomic>
 
 using namespace llvm;
 
@@ -54,10 +55,29 @@ static cl::opt<unsigned, false, MFMAPaddingRatioParser>
                      cl::desc("Fill a percentage of the latency between "
                               "neighboring MFMA with s_nops."));
 
-// This is intended for debugging purposes only.
+// These options are intended for debugging purposes only.
 static cl::opt<unsigned>
     NopPadding("amdgpu-snop-padding", cl::init(0), cl::Hidden,
                cl::desc("Insert a s_nop x before every instruction"));
+
+// Global counter across all functions/translation units for bisection. Counts
+// every instruction seen by PreEmitNoops when amdgpu-snop-padding is active.
+// Use with -j1 to get deterministic indices.
+static std::atomic<unsigned> NopPaddingInstrIndex{0};
+
+static cl::opt<unsigned>
+    NopPaddingBegin("amdgpu-snop-padding-begin", cl::init(0), cl::Hidden,
+                    cl::desc("First instruction index (inclusive) to receive "
+                             "nop padding; used with amdgpu-snop-padding to "
+                             "bisect which instruction requires the padding"));
+
+static cl::opt<unsigned>
+    NopPaddingEnd("amdgpu-snop-padding-end",
+                  cl::init(std::numeric_limits<unsigned>::max()), cl::Hidden,
+                  cl::desc("First instruction index (exclusive) that does NOT "
+                           "receive nop padding; defaults to all instructions. "
+                           "Bisect by halving [begin,end) each run until the "
+                           "failing instruction is isolated"));
 
 static cl::opt<bool> EnableWMMAVnopHoisting(
     "amdgpu-wmma-vnop-hoisting", cl::init(true), cl::Hidden,
@@ -331,7 +351,24 @@ unsigned GCNHazardRecognizer::PreEmitNoops(MachineInstr *MI) {
   unsigned W = PreEmitNoopsCommon(MI);
   fixHazards(MI);
   CurrCycleInstr = nullptr;
-  return std::max(W, NopPadding.getValue());
+
+  unsigned ExtraNops = 0;
+  if (NopPadding) {
+    unsigned Idx = NopPaddingInstrIndex.fetch_add(1, std::memory_order_relaxed);
+    if (Idx >= NopPaddingBegin && Idx < NopPaddingEnd) {
+      ExtraNops = NopPadding.getValue();
+      LLVM_DEBUG(dbgs() << "NopPadding: instr " << Idx << " in ["
+                        << NopPaddingBegin << ", " << NopPaddingEnd
+                        << ") — inserting " << ExtraNops << " nop(s) before: "
+                        << *MI);
+    } else {
+      LLVM_DEBUG(dbgs() << "NopPadding: instr " << Idx << " outside ["
+                        << NopPaddingBegin << ", " << NopPaddingEnd
+                        << ") — skipping: " << *MI);
+    }
+  }
+
+  return std::max(W, ExtraNops);
 }
 
 unsigned GCNHazardRecognizer::PreEmitNoopsCommon(MachineInstr *MI) const {
