@@ -1409,6 +1409,15 @@ def FeatureUseAddPC64Inst : SubtargetFeature<"use-add-pc64-inst",
   "Use s_add_pc_i64 instruction."
 >;
 
+defm VOP3PX2IncrementsVaVdstTwice : AMDGPUSubtargetFeature<"vop3px2-increments-va-vdst-twice",
+  "VOP3PX2 encoded instructions increment the VaVdst counter twice", GenPredicate=false
+>;
+
+defm NeedsTDMDrain : AMDGPUSubtargetFeature<"needs-tdm-drain",
+  "Needs to keep tensor count low",
+  /*GenPredicate=*/0
+>;
+
 //===----------------------------------------------------------------------===//
 
 class GCNSubtargetFeatureGeneration <string Value,
@@ -2187,6 +2196,7 @@ def FeatureISAVersion12_50_Common : FeatureSet<
    FeatureVMovB64Inst,
    FeatureVMulU64Inst,
    FeatureRequiresInitialUnclausedVmem,
+   FeatureNeedsTDMDrain,
 ]>;
 
 def FeatureISAVersion12_50 : FeatureSet<
