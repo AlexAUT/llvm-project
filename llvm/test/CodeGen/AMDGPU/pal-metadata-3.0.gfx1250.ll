@@ -64,7 +64,7 @@
 ; CHECK-NEXT:        .mem_ordered:    true
 ; CHECK-NEXT:        .scratch_en:     false
 ; CHECK-NEXT:        .scratch_memory_size: 0
-; CHECK-NEXT:        .sgpr_count:     0x42
+; CHECK-NEXT:        .sgpr_count:     0x4
 ; CHECK-NEXT:        .sgpr_limit:     0x6a
 ; CHECK-NEXT:        .threadgroup_dimensions:
 ; CHECK-NEXT:          - 0x1
